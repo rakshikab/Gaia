@@ -47,3 +47,28 @@ def write_xyz(data, filename, path):
 
     print "XYZ file generated at {path}...".format(path=file_path)
 
+def obj_exporter(path_to_obj, scene):
+    """
+    Pass the scene object to export OBJ
+    :param path_to_obj: Path to store OBJ
+    :param scene: Scene data structure
+    :return: 
+    """
+
+    filepath_out = path_to_obj
+    with open(filepath_out, 'w') as ofile:
+
+        begin = "OBJ File: \n"
+        ofile.write(begin)
+
+        for object in scene:
+            for vertex in object.mesh.vertices:
+                line = "v {v[0]:.4f} {v[1]:.4f} {v[2]:.4f} \n"
+                line = line.format(v=vertex)
+                ofile.write(line)
+
+            for f in object.mesh.faces:
+                line = "{0} {1} \n"
+                indices = [str(i + 1)+"//" for i in f]
+                line = line.format("f", ' '.join(indices))
+                ofile.write(line)
