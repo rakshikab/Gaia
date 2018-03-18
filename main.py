@@ -5,14 +5,15 @@ import sys
 
 from objreader import OBJreader
 from object import Object
-from primitives import Grid
+from primitives import Plane, RandomizedHeightMapGrid
 
 name = 'Environment'
 scene = []
 
 def loadMeshes():
     tree_mesh = OBJreader('models/tree.obj')
-    plane_mesh = Grid(30, 30)
+    #plane_mesh = Plane(30, 30)
+    plane_mesh = RandomizedHeightMapGrid(30, 30, 150, 0.2)
     
     tree1 = Object('tree1', tree_mesh)
     tree2 = Object('tree2', tree_mesh)
@@ -22,7 +23,7 @@ def loadMeshes():
     tree1.translate(-2, -2, 1)
     tree2.translate(0, -2, 0)
     tree3.translate(2, -2, -5)
-    ground_plane.translate(0, -1, 0)
+    ground_plane.translate(5, -1, 0)
     
     tree1.setColor(0.2, 1.0, 0.2, 1.0)
     tree2.setColor(0.5, 1.0, 0.4, 1.0)
