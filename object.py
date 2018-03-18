@@ -7,7 +7,10 @@ class Object:
         self.scaling = [1, 1, 1]
         self.color = [1.0, 1.0, 1.0, 1.0]
         self.bbox = mesh.bbox
-
+        
+        self.selected_color = [0.5, 0.5, 0, 1.0]
+        self.selected = False
+        
     def translate(self, tx, ty, tz, absolute=False):
         if absolute:
             self.translation = [0, 0, 0]
@@ -34,3 +37,6 @@ class Object:
         self.color[1] = g
         self.color[2] = b
         self.color[3] = a
+        
+    def select(self):
+        self.selected = True

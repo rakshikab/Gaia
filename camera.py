@@ -7,7 +7,6 @@ from math import sin, cos
 from objreader import OBJreader
 from object import Object
 from primitives import Plane, RandomizedHeightMapGrid
-from scatter import create_scatter
 
 name = 'Environment'
 scene = []
@@ -45,26 +44,31 @@ def changeSize(w, h):
     glMatrixMode(GL_MODELVIEW)
 
 def loadMeshes():
+    '''
     tree_mesh = OBJreader('models/tree.obj')
-    bridge_mesh = OBJreader('models/woodenbridge.obj')
-    plane_mesh = RandomizedHeightMapGrid(30, 30, 150, 150, 0.2)
-    
-    bridge = Object('bridge1', bridge_mesh)
-    ground_plane = Object('plane1', plane_mesh)
-    tree1 = Object('tree1', tree_mesh)
-    
-    tree1.translate(-2, -2, -3)
-    bridge.scale(0.05, 0.05, 0.05, True)
-    bridge.translate(0, -2, 0)
-    bridge.rotate(0, 45, 0)
-    ground_plane.translate(5, -1, 0)
-    
-    tree1.setColor(0.2, 1.0, 0.2, 1.0)
-    bridge.setColor(0.6, 0.15, 0.15, 1.0)
+    #plane_mesh = Plane(30, 30)
+    plane_mesh = RandomizedHeightMapGrid(30, 30, 150, 0.2)
 
-    scene.append(bridge)
-    scene.append(ground_plane)
+    tree1 = Object('tree1', tree_mesh)
+    tree2 = Object('tree2', tree_mesh)
+    tree3 = Object('tree3', tree_mesh)
+    ground_plane = Object('plane1', plane_mesh)
+
+    tree1.translate(-2, -2, 1)
+    tree2.translate(0, -2, 0)
+    tree3.translate(2, -2, -5)
+    ground_plane.translate(5, -1, 0)
+
+    tree1.setColor(0.2, 1.0, 0.2, 1.0)
+    tree2.setColor(0.5, 1.0, 0.4, 1.0)
+    tree3.setColor(0.3, 1.0, 0.3, 1.0)
+    ground_plane.setColor(1.0, 1.0, 1.0, 1.0)
+
     scene.append(tree1)
+    scene.append(tree2)
+    scene.append(tree3)
+    scene.append(ground_plane)
+    '''
 
 def computePos(deltaMove):
     global cameraX, cameraY, cameraZ, vx, vy, vz
@@ -83,6 +87,7 @@ def computePos(deltaMove):
 def processNormalKeys(key, xx, yy):
 
     global rollamount, cameraY
+    print rollamount, cameraY
     key = str(key)
     if (key == 27):
         exit(0)
@@ -96,27 +101,31 @@ def processNormalKeys(key, xx, yy):
     if (key == 'N' or key == 'n'):
         if (rollamount < 45):
             rollamount += 1
+    print rollamount, cameraY
 
 def pressKey(key, xx, yy):
     global deltaMove, lstrafe, rstrafe
-    print GLUT_KEY_UP
+
+    key = str(key)
     if key == GLUT_KEY_UP:
         deltaMove = 0.8
     elif key == GLUT_KEY_DOWN:
         deltaMove = -0.8
-    elif key == GLUT_KEY_RIGHT:
+    elif GLUT_KEY_RIGHT:
         rstrafe = 1
     elif key == GLUT_KEY_LEFT:
         lstrafe = 1
 
 def releaseKey(key, x, y):
     global deltaMove, lstrafe, rstrafe
+
+    key = str(key)
     if key == GLUT_KEY_UP or key == GLUT_KEY_DOWN:
         deltaMove = 0
     elif key == GLUT_KEY_LEFT:
-        lstrafe = 0
+        lstrafe = 1
     elif key == GLUT_KEY_RIGHT:
-        rstrafe = 0
+        rstrafe = 1
 
 def mouseMove(x, y):
     global vx, vy, vz, deltaXZangle, xOrigin, XZangle, yOrigin, deltaYangle, Yangle
@@ -143,6 +152,8 @@ def mouseButton(button, state, x, y):
         else:
             xOrigin = x
             yOrigin = y
+            print xOrigin, yOrigin
+
 
     if (button == 3 or button == 4):
         if(fov >= 1.0 and fov <= 45.0):
@@ -161,10 +172,10 @@ def mouseButton(button, state, x, y):
         glViewport(0, 0, w, h)
         gluPerspective(fov, ratio, 0.1, 100.0)
         glMatrixMode(GL_MODELVIEW)
-            
+
 def main():
     glutInit(sys.argv)
-    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH | GLUT_MULTISAMPLE)
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH)
     glutInitWindowSize(400,400)
     glutCreateWindow(name)
 
@@ -175,34 +186,22 @@ def main():
     glEnable(GL_LIGHTING)
     
     lightZeroPosition = [10.0, 4.0, 10.0, 1.0]
-    lightZeroDiffColor = [0.8, 0.8, 0.2, 1.0]
-    lightZeroAmbColor = [0.0, 0.0, 0.0, 1.0]
-    lightZeroSpecColor = [1.0, 1.0, 1.0, 1.0]
+    lightZeroColor = [0.8, 0.8, 0.2, 1.0]
     glLightfv(GL_LIGHT0, GL_POSITION, lightZeroPosition)
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, lightZeroDiffColor)
-    
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, lightZeroColor)
     glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 0.1)
     glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.05)
     glEnable(GL_LIGHT0)
-    
-    glEnable( GL_LINE_SMOOTH );
-    glEnable( GL_POLYGON_SMOOTH );
-    glHint( GL_LINE_SMOOTH_HINT, GL_NICEST );
-    glHint( GL_POLYGON_SMOOTH_HINT, GL_NICEST );
-    glEnable(GL_MULTISAMPLE)
-    
-    glutIgnoreKeyRepeat(1)
     glutDisplayFunc(display)
     glutIdleFunc(display)
-    
     glMatrixMode(GL_PROJECTION)
-    gluPerspective(45.0, 1.0, 1.0, 45.0)
+    gluPerspective(40.0, 1.0, 1.0, 40.0)
     glMatrixMode(GL_MODELVIEW)
-    gluLookAt(0,3,10,
+    gluLookAt(0,0,10,
               0,0,0,
               0,1,0)
     loadMeshes()
-    
+    glPushMatrix()
     glutReshapeFunc(changeSize)
 
     glutIgnoreKeyRepeat(1)
@@ -216,41 +215,41 @@ def main():
     return
 
 def display():
+    print 'New frame'
     global vx, vy, vz, deltaMove, lstrafe, rstrafe, cameraX, cameraY, cameraZ
-    
-    if (deltaMove or lstrafe or rstrafe):
-        computePos(deltaMove)
-        
-    glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT)
-    
-    glLoadIdentity()
 
-    print cameraX, cameraY, cameraZ
+    if (deltaMove or lstrafe or rstrafe):
+        print 'Fuck you'
+        computePos(deltaMove)
+
+    glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT)
+
+    glLoadIdentity()
+    print cameraX, cameraY, cameraZ, vx, vy, vz
     gluLookAt(cameraX, cameraY, cameraZ,
               cameraX+vx, cameraY+vy, cameraZ+ vz,
               0.0, 1.0,  0.0)
     glTranslatef(cameraX, cameraY, cameraZ)
     glRotatef(rollamount, vx, vy, vz)
     glTranslatef(-1.0 * cameraX, -1.0 * cameraY, -1.0 * cameraZ)
-    
+
     glPushMatrix()
-       
     # Object rendering code
     for object in scene:
         # Work in this object's space
         glPushMatrix()
-        
+
         # Apply all object transforms
-        glTranslatef(object.translation[0], object.translation[1], object.translation[2])
+        glScalef(object.scaling[0], object.scaling[1], object.scaling[2])
         glRotatef(object.rotation[0], 1, 0, 0)
         glRotatef(object.rotation[1], 0, 1, 0)
         glRotatef(object.rotation[2], 0, 0, 1)
-        glScalef(object.scaling[0], object.scaling[1], object.scaling[2])
-        
+        glTranslatef(object.translation[0], object.translation[1], object.translation[2])
+
         # Set color and material for this object
         color = [object.color[0], object.color[1], object.color[2], object.color[3]]
         glMaterialfv(GL_FRONT, GL_DIFFUSE, color)
-       
+
         # Draw triangles from the mesh description
         glBegin(GL_TRIANGLES)
         for face in object.mesh.faces:
@@ -260,9 +259,12 @@ def display():
         glEnd()
         # Come back to world space
         glPopMatrix()
-    
+
+    glutSolidSphere(2, 20, 20)
+
     glPopMatrix()
     glutSwapBuffers()
     return
 
 if __name__ == '__main__': main()
+

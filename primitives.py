@@ -19,12 +19,12 @@ class Plane(Primitive):
         self.bbox = ((-width/2.0, -length/2.0),(0,0),(width/2.0, length/2.0))
        
 class Grid(Primitive):
-    def __init__(self, width, length, divisions=0):
+    def __init__(self, width, length, divisions_x=0, divisions_y=0):
         super(Grid, self).__init__()
-        spacing_x = width*1.0/(2+divisions)
-        spacing_y = length*1.0/(2+divisions)
-        n_x = 2+divisions
-        n_y = 2+divisions
+        spacing_x = width*1.0/(2+divisions_x)
+        spacing_y = length*1.0/(2+divisions_y)
+        n_x = 2+divisions_x
+        n_y = 2+divisions_y
         
         # Draw vertices
         for i in xrange(n_x):
@@ -41,9 +41,10 @@ class Grid(Primitive):
                 self.faces.append((vertex_id+1+n_x, vertex_id+n_x, vertex_id))             
                 
 class RandomizedHeightMapGrid(Grid):
-    def __init__(self, width, length, divisions=0, amplitude=1):
-        super(RandomizedHeightMapGrid, self).__init__(width, length, divisions)
-        rows = columns = 2+divisions
+    def __init__(self, width, length, divisions_x=0, divisions_y=0, amplitude=1):
+        super(RandomizedHeightMapGrid, self).__init__(width, length, divisions_x, divisions_y)
+        rows = 2+divisions_x
+        columns = 2 + divisions_y
         randomized_heightmap = [[random.random()*amplitude for x in range(columns)] for x in range(rows)]
         
         for i in xrange(rows):
@@ -51,3 +52,15 @@ class RandomizedHeightMapGrid(Grid):
                 vertex_id = j*rows + i
                 vertex = self.vertices[vertex_id]
                 vertex[1] = randomized_heightmap[i][j]
+
+class HeightMapGrid(Grid):
+    def __init__(self, width, length, scaling=1):
+        rows = len(heightmap)
+        columns = len(heightmap[0])
+        super(HeightMapGrid, self).__init__(width, length, rows, columns)
+        
+        for i in xrange(rows):
+            for j in xrange(columns):
+                vertex_id = j*rows + i
+                vertex = self.vertices[vertex_id]
+                vertex[1] = scaling*heightmap[i][j]

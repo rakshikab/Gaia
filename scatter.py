@@ -15,12 +15,10 @@ def create_scatter(x, y, w, h, rows, columns, coefficient):
 
     xd = w*1.0/columns
     yd = h*1.0/rows
-    print xd, yd
     scattered_tuples = []
 
     for ix in range(columns):
         for iy in range(rows):
             scattered_tuples.append(( x + (xd*ix) + random.uniform(-coefficient, coefficient)*xd,
                                       y + (yd*iy) + random.uniform(-coefficient, coefficient)*yd))
-
     return scattered_tuples
