@@ -5,26 +5,34 @@ import sys
 
 from objreader import OBJreader
 from object import Object
+from primitives import Grid
 
 name = 'Environment'
 scene = []
 
 def loadMeshes():
     tree_mesh = OBJreader('models/tree.obj')
+    plane_mesh = Grid(30, 30)
     
     tree1 = Object('tree1', tree_mesh)
     tree2 = Object('tree2', tree_mesh)
     tree3 = Object('tree3', tree_mesh)
-    tree1.translate(-2, 0, 1)
-    tree3.translate(2, 0, -5)
+    ground_plane = Object('plane1', plane_mesh)
+    
+    tree1.translate(-2, -2, 1)
+    tree2.translate(0, -2, 0)
+    tree3.translate(2, -2, -5)
+    ground_plane.translate(0, -1, 0)
     
     tree1.setColor(0.2, 1.0, 0.2, 1.0)
     tree2.setColor(0.5, 1.0, 0.4, 1.0)
     tree3.setColor(0.3, 1.0, 0.3, 1.0)
+    ground_plane.setColor(1.0, 1.0, 1.0, 1.0)
     
     scene.append(tree1)
     scene.append(tree2)
     scene.append(tree3)
+    scene.append(ground_plane)
     
 def main():
     glutInit(sys.argv)
@@ -32,7 +40,7 @@ def main():
     glutInitWindowSize(400,400)
     glutCreateWindow(name)
 
-    glClearColor(0.0,0.0,0.0,1.)
+    glClearColor(135/255.0, 206/255.0, 250/255.0, 1.0)
     glShadeModel(GL_SMOOTH)
     glEnable(GL_CULL_FACE)
     glEnable(GL_DEPTH_TEST)
