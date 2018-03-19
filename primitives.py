@@ -54,10 +54,10 @@ class RandomizedHeightMapGrid(Grid):
                 vertex[1] = randomized_heightmap[i][j]
 
 class HeightMapGrid(Grid):
-    def __init__(self, width, length, scaling=1):
+    def __init__(self, heightmap, width, length, scaling=1):
         rows = len(heightmap)
         columns = len(heightmap[0])
-        super(HeightMapGrid, self).__init__(width, length, rows, columns)
+        super(HeightMapGrid, self).__init__(width, length, 20, 20)
         
         for i in xrange(rows):
             for j in xrange(columns):

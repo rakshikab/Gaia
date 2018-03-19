@@ -57,14 +57,36 @@ def loadMeshes():
     bridge.scale(0.05, 0.05, 0.05, True)
     bridge.translate(0, -2, 0)
     bridge.rotate(0, 45, 0)
+
+    plane_mesh = RandomizedHeightMapGrid(30, 30, 150, 0.2)
+
+    tree1 = Object('tree1', tree_mesh)
+    tree2 = Object('tree2', tree_mesh)
+    tree3 = Object('tree3', tree_mesh)
+    ground_plane = Object('plane1', plane_mesh)
+
+    tree1.translate(-2, -2, 1)
+    tree2.translate(0, -2, 0)
+    tree3.translate(2, -2, -5)
+
     ground_plane.translate(5, -1, 0)
-    
+
     tree1.setColor(0.2, 1.0, 0.2, 1.0)
+
     bridge.setColor(0.6, 0.15, 0.15, 1.0)
 
     scene.append(bridge)
     scene.append(ground_plane)
     scene.append(tree1)
+
+    tree2.setColor(0.5, 1.0, 0.4, 1.0)
+    tree3.setColor(0.3, 1.0, 0.3, 1.0)
+    ground_plane.setColor(1.0, 1.0, 1.0, 1.0)
+
+    scene.append(tree1)
+    scene.append(tree2)
+    scene.append(tree3)
+    scene.append(ground_plane)
 
 def computePos(deltaMove):
     global cameraX, cameraY, cameraZ, vx, vy, vz
@@ -81,9 +103,7 @@ def computePos(deltaMove):
         cameraZ += deltaMove * vz * 0.5
 
 def processNormalKeys(key, xx, yy):
-
     global rollamount, cameraY
-    key = str(key)
     if (key == 27):
         exit(0)
     if (key == 'W' or key == 'w'):
@@ -99,7 +119,7 @@ def processNormalKeys(key, xx, yy):
 
 def pressKey(key, xx, yy):
     global deltaMove, lstrafe, rstrafe
-    print GLUT_KEY_UP
+
     if key == GLUT_KEY_UP:
         deltaMove = 0.8
     elif key == GLUT_KEY_DOWN:
@@ -111,6 +131,7 @@ def pressKey(key, xx, yy):
 
 def releaseKey(key, x, y):
     global deltaMove, lstrafe, rstrafe
+
     if key == GLUT_KEY_UP or key == GLUT_KEY_DOWN:
         deltaMove = 0
     elif key == GLUT_KEY_LEFT:
@@ -161,7 +182,7 @@ def mouseButton(button, state, x, y):
         glViewport(0, 0, w, h)
         gluPerspective(fov, ratio, 0.1, 100.0)
         glMatrixMode(GL_MODELVIEW)
-            
+
 def main():
     glutInit(sys.argv)
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH | GLUT_MULTISAMPLE)
@@ -202,7 +223,7 @@ def main():
               0,0,0,
               0,1,0)
     loadMeshes()
-    
+
     glutReshapeFunc(changeSize)
 
     glutIgnoreKeyRepeat(1)
@@ -211,7 +232,7 @@ def main():
     glutSpecialUpFunc(releaseKey)
     glutMouseFunc(mouseButton)
     glutMotionFunc(mouseMove)
-    
+    glutIdleFunc(display)
     glutMainLoop()
     return
 
@@ -225,21 +246,24 @@ def display():
     
     glLoadIdentity()
 
-    print cameraX, cameraY, cameraZ
+    if (deltaMove or lstrafe or rstrafe):
+        computePos(deltaMove)
+
+    glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT)
+
     gluLookAt(cameraX, cameraY, cameraZ,
               cameraX+vx, cameraY+vy, cameraZ+ vz,
               0.0, 1.0,  0.0)
     glTranslatef(cameraX, cameraY, cameraZ)
     glRotatef(rollamount, vx, vy, vz)
     glTranslatef(-1.0 * cameraX, -1.0 * cameraY, -1.0 * cameraZ)
-    
+
     glPushMatrix()
-       
     # Object rendering code
     for object in scene:
         # Work in this object's space
         glPushMatrix()
-        
+
         # Apply all object transforms
         glTranslatef(object.translation[0], object.translation[1], object.translation[2])
         glRotatef(object.rotation[0], 1, 0, 0)
@@ -251,6 +275,10 @@ def display():
         color = [object.color[0], object.color[1], object.color[2], object.color[3]]
         glMaterialfv(GL_FRONT, GL_DIFFUSE, color)
        
+        # Set color and material for this object
+        color = [object.color[0], object.color[1], object.color[2], object.color[3]]
+        glMaterialfv(GL_FRONT, GL_DIFFUSE, color)
+
         # Draw triangles from the mesh description
         glBegin(GL_TRIANGLES)
         for face in object.mesh.faces:
@@ -260,7 +288,7 @@ def display():
         glEnd()
         # Come back to world space
         glPopMatrix()
-    
+
     glPopMatrix()
     glutSwapBuffers()
     return
